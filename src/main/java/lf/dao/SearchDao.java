@@ -1,15 +1,20 @@
 package lf.dao;
 
 import lf.dto.QuestionSearchCriteriaDto;
+import lf.dto.TagQuestionDto;
 import lf.entity.Question;
 import lf.entity.QuestionSearchQueryCriteriaConsumer;
 import lf.enums.SortType;
+import lf.repository.TagRepository;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +23,6 @@ public class SearchDao {
 
     @PersistenceContext
     private EntityManager entityManager;
-
 
     public List<Question> questionSearch(QuestionSearchCriteriaDto questionSearchCriteriaDto) {
         int offset = 0;
@@ -56,4 +60,13 @@ public class SearchDao {
         return result;
     }
 
+    public List<TagQuestionDto> findQuestionCountByAllTags() {
+        Query query = entityManager.createNativeQuery("select qt.tag_id, t.tag_name, count(qt.question_id) from question_tag qt inner join tag t on qt.tag_id = t.id group by qt.tag_id");
+        List<Object[]> response = query.getResultList();
+        List<TagQuestionDto> tagQuestionDtoList = new ArrayList<TagQuestionDto>();
+        for (Object[] object : response) {
+            tagQuestionDtoList.add(new TagQuestionDto(((BigInteger) object[0]).longValue(), (String) object[1], ((BigInteger) object[2])));
+        }
+        return tagQuestionDtoList;
+    }
 }

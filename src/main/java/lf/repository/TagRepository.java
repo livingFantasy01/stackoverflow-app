@@ -17,4 +17,5 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     @Modifying(clearAutomatically = true,flushAutomatically = true)
     @Query("update Tag t set t.tagName = :tagName where id = :id")
     int setTagInfoById(@Param("tagName") String tagName, @Param("id") Long id);
+
 }
